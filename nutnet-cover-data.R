@@ -61,7 +61,14 @@ nutnetRelCover <- nutnetCover%>%
 
 
 #pull out pre-treatment data
-preTrtCover <- nutnetRelCover%>%filter(year_trt==0)
+preTrtCover <- nutnetRelCover%>%
+  filter(year_trt==0)%>%
+  select(site_code, plot, trt, Taxon, rel_cover)
+names(preTrtCover)[names(preTrtCover)=='rel_cover'] <- 'pretrt_cover'
 
 #pull out experimental data
 trtCover <- nutnetRelCover%>%filter(year_trt>0)
+
+#merge pre-treatment and experimental data
+trtCoverTime <- trtCover%>%
+  left_join(preTrtCover, by=c('site_code', 'plot', 'trt', 'Taxon'))
