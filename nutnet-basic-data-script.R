@@ -3,9 +3,8 @@ library(dplyr)
 library(tidyr)
 
 
-setwd('C:\\Users\\Kim\\Dropbox\\working groups\\HRF response - NutNet and CORRE\\NutNet data')
+setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
-source('C:\\Users\\Kim\\Dropbox\\working groups\\HRF response - NutNet and CORRE\\HRF-test\\nutnet_weather.R')
 
 ###read in data
 nutnetData <- read.csv('comb-by-plot-clim-soil-diversity21-Jun-2016.csv')
@@ -19,17 +18,10 @@ nutnetBio <- nutnetData%>%
   filter(experiment_type!='Observational')%>%
   #get rid of exclosure plots
   filter(Exclose==0)%>%
-  #merge with precipitation data
-  left_join(nutnetWeather, by=c('site_code', 'year'))%>%
-  select(site_code, N, P, K, trt, plot, year_trt, year, rich, site_year_rich, MAT, MAP, RAIN_PET, ppt, plot_beta, total_mass, live_mass, dead_mass)
+  select(site_code, N, P, K, trt, plot, year_trt, year, rich, site_year_rich, MAT, MAP, RAIN_PET, plot_beta, total_mass, live_mass, dead_mass)
 
 
-#examine precipitation relationship - Konza test
-summary(precipModel <- glm(live_mass ~ ppt, data=subset(nutnetBio, site_code=='konz.us')))
-plot(nutnetBio$live_mass~nutnetBio$ppt)
-
-
-###calculate difference from pre-treatment year
+###calculate ln RR from pre-treatment year
 #pull out pre-treatment data
 preTrtBio <- nutnetBio%>%filter(year_trt==0)%>%
   select(site_code, plot, live_mass)
@@ -45,7 +37,7 @@ trtBio <- nutnetBio%>%filter(year_trt>0)%>%
   filter(!is.na(live_mass), live_mass!='NULL')%>%
   #calculate change in ANPP from pre-treatment year to each treatment year
   mutate(live_mass=as.numeric(live_mass), yr0_live_mass=as.numeric(yr0_live_mass))%>%
-  mutate(live_mass_diff=((live_mass-yr0_live_mass)/yr0_live_mass))
+  mutate(live_mass_lnRR=(log(live_mass/yr0_live_mass)))
 
 
 
