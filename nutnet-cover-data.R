@@ -1,12 +1,10 @@
 library(lattice)
-library(nlme)
-library(vegan)
 library(plyr)
 library(dplyr)
 library(tidyr)
 
 
-setwd('C:\\Users\\Kim\\Dropbox\\working groups\\HRF response - NutNet and CORRE\\NutNet data')
+setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
 
 #read in data
