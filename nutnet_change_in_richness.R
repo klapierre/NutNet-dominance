@@ -20,7 +20,7 @@ preTrtRich <- nutnetRich%>%filter(year_trt==0)%>%
 names(preTrtRich)[names(preTrtRich)=="rich.vegan"] <- "yr0_rich"
 
 #pull out experimental data
-trtRich <- nutnetRich%>%filter(year_trt>0)%>%
+richRR <- nutnetRich%>%filter(year_trt>0)%>%
   #merge experimental years with pre-treatment years
   left_join(preTrtRich, by=c('site_code', 'plot'))%>%
   #remove sites without pretreatment data

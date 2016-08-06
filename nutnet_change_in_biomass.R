@@ -17,7 +17,7 @@ preTrtBio <- nutnetBio%>%filter(year_trt==0)%>%
 names(preTrtBio)[names(preTrtBio)=="live_mass"] <- "yr0_live_mass"
 
 #pull out experimental data
-trtBio <- nutnetBio%>%filter(year_trt>0)%>%
+bioRR <- nutnetBio%>%filter(year_trt>0)%>%
   #merge experimental years with pre-treatment years
   left_join(preTrtBio, by=c('site_code', 'plot'))%>%
   #remove sites without pretreatment data
