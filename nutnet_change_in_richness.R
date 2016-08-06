@@ -11,7 +11,7 @@ setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
 #pull out richness data
 nutnetRich <- nutnetData%>%
-  select(site_code, N, P, K, Exclose, trt, plot, year_trt, year, rich, site_year_rich, MAT, MAP, RAIN_PET, plot_beta, rich.vegan)
+  select(site_code, N, P, K, Exclose, trt, plot, year_trt, year, rich.vegan)
 
 ###through time calculation (from pre-treatment year)
 #pull out pre-treatment data
@@ -29,4 +29,5 @@ trtRich <- nutnetRich%>%filter(year_trt>0)%>%
   filter(!is.na(rich.vegan), rich.vegan!='NULL')%>%
   #calculate change in richness from pre-treatment year to each treatment year
   mutate(rich.vegan=as.numeric(rich.vegan), yr0_rich=as.numeric(yr0_rich))%>%
-  mutate(rich_lnRR=(log(rich.vegan/yr0_rich)))
+  mutate(rich_lnRR=(log(rich.vegan/yr0_rich)))%>%
+  select(-rich.vegan, -yr0_rich)
