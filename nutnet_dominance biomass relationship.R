@@ -19,5 +19,7 @@ coverBioYr3 <- coverBio%>%
 plot(coverBioYr3$live_mass_lnRR~coverBioYr3$cover_lnRR)
 
 sub <- coverBioYr3%>%
-  filter(cover_lnRR<5)
-plot(sub$live_mass_lnRR~sub$cover_lnRR)
+  group_by(site_code, trt)%>%
+  summarize(cover_mean_lnRR=mean(cover_lnRR), live_mass_mean_lnRR=mean(live_mass_lnRR))
+  
+plot(sub$live_mass_mean_lnRR~sub$cover_mean_lnRR)
