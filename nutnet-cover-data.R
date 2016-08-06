@@ -72,4 +72,6 @@ trtCover <- nutnetRelCover%>%filter(year_trt>0)
 #merge pre-treatment and experimental data
 trtCoverTime <- trtCover%>%
   left_join(preTrtCover, by=c('site_code', 'plot', 'trt', 'Taxon'))%>%
-  replace_na(list(pretrt_cover=0))
+  replace_na(list(pretrt_cover=0))%>%
+  #filter out any species where pre-trt cover=0, as these could never be the dominant species
+  filter(pretrt_cover>0)
