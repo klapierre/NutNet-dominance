@@ -17,4 +17,10 @@ coverRR <- trtCoverTime%>%
 domRR <- coverRR%>%
   group_by(site_code, trt, plot, year)%>%
   mutate(max=ifelse(pretrt_cover==max(pretrt_cover), 1, 0))%>%
-  filter(max==1)
+  filter(max==1)%>%
+  #take average change in dominant spp from pre-treatment for sites with 2+ codominants at yr=0
+  #we need to think more about this!
+  ungroup()%>%
+  select(site_code, year, year_trt, plot, trt, cover_lnRR)%>%
+  group_by(site_code, year, year_trt, plot, trt)%>%
+  summarise(cover_lnRR=mean(cover_lnRR))
