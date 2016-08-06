@@ -9,17 +9,16 @@ source('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\nutnet_change_in_biom
 
 setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
-coverBio <- trtBio%>%
-  left_join(domRR)
+#keep only needed dataframes
+rm(list=setdiff(ls(), c('domRR', 'bioRR')))
 
+domBio <- bioRR%>%
+  left_join(domRR)%>%
+  #keep only NPK and fence factorial experiment
+  filter(trt=='Control'|trt=='NPK'|trt=='Fence'|trt=='NPK+Fence')%>%
+  #create NPK and fence treatment variables
+  mutate(NPK=ifelse(trt=='NPK'|trt=='NPK+Fence', 'NPK', 'Control'), Fence=ifelse(trt=='Fence'|trt=='NPK+Fence', 'Fence', 'Control'))
 
+summary(domBioModel3 <- lme(live_mass_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==3)))
 
-coverBioYr3 <- coverBio%>%
-  filter(year_trt==3, trt=='NPK')
-plot(coverBioYr3$live_mass_lnRR~coverBioYr3$cover_lnRR)
-
-sub <- coverBioYr3%>%
-  group_by(site_code, trt)%>%
-  summarize(cover_mean_lnRR=mean(cover_lnRR), live_mass_mean_lnRR=mean(live_mass_lnRR))
-  
-plot(sub$live_mass_mean_lnRR~sub$cover_mean_lnRR)
+summary(domBioModel6 <- lme(live_mass_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==6)))
