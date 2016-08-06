@@ -10,7 +10,7 @@ setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 nutnetBio <- nutnetData%>%
   select(site_code, N, P, K, Exclose, trt, plot, year_trt, year, rich, site_year_rich, MAT, MAP, RAIN_PET, plot_beta, total_mass, live_mass, dead_mass)
 
-###calculate biomass ln RR from pre-treatment year
+###through time calculation (from pre-treatment year)
 #pull out pre-treatment data
 preTrtBio <- nutnetBio%>%filter(year_trt==0)%>%
   select(site_code, plot, live_mass)
