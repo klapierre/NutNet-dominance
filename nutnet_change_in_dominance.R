@@ -18,6 +18,3 @@ domRR <- coverRR%>%
   group_by(site_code, trt, plot, year)%>%
   mutate(max=ifelse(pretrt_cover==max(pretrt_cover), 1, 0))%>%
   filter(max==1)
-
-
-
