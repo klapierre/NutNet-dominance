@@ -5,7 +5,7 @@ library(dplyr)
 library(tidyr)
 
 source('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\nutnet_change_in_dominance.R')
-source('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\nutnet-basic-data-script.R')
+source('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\nutnet_change_in_biomass.R')
 
 setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
