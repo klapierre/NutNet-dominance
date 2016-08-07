@@ -11,7 +11,7 @@ setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 ###through time calculation (from pre-treatment year)
 #calculate ln response ratio for change in spp cover
 coverRR <- trtCoverTime%>%
-  mutate(cover_lnRR=(log(rel_cover/pretrt_cover)))
+  mutate(cover_temp_lnRR=(log(rel_cover/pretrt_cover)))
 
 #filter out just the dominant species RR, as determined from pre-trt data
 domRR <- coverRR%>%
@@ -21,6 +21,6 @@ domRR <- coverRR%>%
   #take average change in dominant spp from pre-treatment for sites with 2+ codominants at yr=0
   #we need to think more about this!
   ungroup()%>%
-  select(site_code, year, year_trt, plot, trt, cover_lnRR)%>%
+  select(site_code, year, year_trt, plot, trt, cover_temp_lnRR)%>%
   group_by(site_code, year, year_trt, plot, trt)%>%
-  summarise(cover_lnRR=mean(cover_lnRR))
+  summarise(cover_temp_lnRR=mean(cover_temp_lnRR))

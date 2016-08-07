@@ -29,5 +29,5 @@ richRR <- nutnetRich%>%filter(year_trt>0)%>%
   filter(!is.na(rich.vegan), rich.vegan!='NULL')%>%
   #calculate change in richness from pre-treatment year to each treatment year
   mutate(rich.vegan=as.numeric(rich.vegan), yr0_rich=as.numeric(yr0_rich))%>%
-  mutate(rich_lnRR=(log(rich.vegan/yr0_rich)))%>%
+  mutate(rich_temp_lnRR=(log(rich.vegan/yr0_rich)))%>%
   select(-rich.vegan, -yr0_rich)

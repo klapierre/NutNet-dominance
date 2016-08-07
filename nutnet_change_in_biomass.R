@@ -26,4 +26,4 @@ bioRR <- nutnetBio%>%filter(year_trt>0)%>%
   filter(!is.na(live_mass), live_mass!='NULL')%>%
   #calculate change in ANPP from pre-treatment year to each treatment year
   mutate(live_mass=as.numeric(live_mass), yr0_live_mass=as.numeric(yr0_live_mass))%>%
-  mutate(live_mass_lnRR=(log(live_mass/yr0_live_mass)))
+  mutate(live_mass_temp_lnRR=(log(live_mass/yr0_live_mass)))

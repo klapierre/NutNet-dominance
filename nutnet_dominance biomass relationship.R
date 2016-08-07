@@ -19,6 +19,6 @@ domBio <- bioRR%>%
   #create NPK and fence treatment variables
   mutate(NPK=ifelse(trt=='NPK'|trt=='NPK+Fence', 'NPK', 'Control'), Fence=ifelse(trt=='Fence'|trt=='NPK+Fence', 'Fence', 'Control'))
 
-summary(domBioModel3 <- lme(live_mass_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==3)))
+summary(domBioModel3 <- lme(live_mass_temp_lnRR ~ cover_temp_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==3)))
 
-summary(domBioModel6 <- lme(live_mass_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==6)))
+summary(domBioModel6 <- lme(live_mass_temp_lnRR ~ cover_temp_lnRR + NPK*Fence, random=~1|site_code, data=subset(domBio, year_trt==6)))

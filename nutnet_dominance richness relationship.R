@@ -38,7 +38,7 @@ source('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\nutnet_change_in_rich
 setwd('C:\\Users\\Kim\\Dropbox\\NutNet\\NutNet-dominance\\NutNet data')
 
 #keep only needed dataframes
-rm(list=setdiff(ls(), c('domRR', 'richRR')))
+rm(list=setdiff(ls(), c('domRR', 'richRR', 'nutnetSite', 'barGraphStats')))
 
 
 ###through time analysis
@@ -51,30 +51,30 @@ domRich <- domRR%>%
   mutate(NPK=ifelse(trt=='NPK'|trt=='NPK+Fence', 'NPK', 'Control'), Fence=ifelse(trt=='Fence'|trt=='NPK+Fence', 'Fence', 'Control'))
   
 
-###mixed model - note, both cover_lnRR and rich_lnRR are fairly normally distributed
+###mixed model - note, both cover_temp_lnRR and rich_temp_lnRR are fairly normally distributed
 #yr=3
-summary(domRichModel3 <- lme(rich_lnRR ~ cover_lnRR, random=~1|site_code, data=subset(domRich, year_trt==3), method='REML'))
+summary(domRichModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR, random=~1|site_code, data=subset(domRich, year_trt==3), method='REML'))
 
 #yr=6
-summary(domRichModel6 <- lme(rich_lnRR ~ cover_lnRR, random=~1|site_code, data=subset(domRich, year_trt==6), method='REML'))
+summary(domRichModel6 <- lme(rich_temp_lnRR ~ cover_temp_lnRR, random=~1|site_code, data=subset(domRich, year_trt==6), method='REML'))
 
 ###plots
 #yr3
-domRichPlot3<- ggplot(data=subset(domRich, year_trt==3), aes(x=cover_lnRR, y=rich_lnRR)) +
+domRichPlot3<- ggplot(data=subset(domRich, year_trt==3), aes(x=cover_temp_lnRR, y=rich_temp_lnRR)) +
   geom_point() +
   xlab('lnRR Dominant Species\nRelative Abundance') +
   ylab('lnRR Richness') +
   coord_cartesian(ylim=c(-2.5, 1.5)) +
-  stat_function(fun=function(x){(-0.10377165 + -0.03864927*x)}, size=1, xlim=c(min(domRich$cover_lnRR),max(domRich$cover_lnRR)), colour='black') +
+  stat_function(fun=function(x){(-0.10377165 + -0.03864927*x)}, size=1, xlim=c(min(domRich$cover_temp_lnRR),max(domRich$cover_temp_lnRR)), colour='black') +
   annotate('text', x=-6, y=1.5, label='(a) Year 3', size=10, hjust='left')
 
 #yr6
-domRichPlot6 <- ggplot(data=subset(domRich, year_trt==6), aes(x=cover_lnRR, y=rich_lnRR)) +
+domRichPlot6 <- ggplot(data=subset(domRich, year_trt==6), aes(x=cover_temp_lnRR, y=rich_temp_lnRR)) +
   geom_point() +
   xlab('lnRR Dominant Species\nRelative Abundance') +
   ylab('') +
   coord_cartesian(ylim=c(-2.5, 1.5)) +
-  stat_function(fun=function(x){(-0.29832165 + -0.08510367*x)}, size=1, xlim=c(min(domRich$cover_lnRR),max(domRich$cover_lnRR)), colour='black') +
+  stat_function(fun=function(x){(-0.29832165 + -0.08510367*x)}, size=1, xlim=c(min(domRich$cover_temp_lnRR),max(domRich$cover_temp_lnRR)), colour='black') +
   annotate('text', x=-6, y=1.5, label='(b) Year 6', size=10, hjust='left')
 
 pushViewport(viewport(layout=grid.layout(1,2)))
@@ -82,16 +82,89 @@ print(domRichPlot3, vp=viewport(layout.pos.row=1, layout.pos.col=1))
 print(domRichPlot6, vp=viewport(layout.pos.row=1, layout.pos.col=2))
 #export at 1400x700
 
-###mixed model - with trts as covariates
+
+###mixed model - with continent as covariates
+domRichSite <- domRich%>%
+  left_join(nutnetSite)%>%
+  select(site_code, continent, region, site_richness, year, year_trt, plot, trt, NPK, Fence, cover_temp_lnRR, rich_temp_lnRR)
+
 #yr=3
-summary(domRichModel3 <- lme(rich_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
+summary(domRichModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + continent, random=~1|site_code, data=subset(domRichSite, year_trt==3)))
 
 #yr=6
-summary(domRichModel3 <- lme(rich_lnRR ~ cover_lnRR + NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
+summary(domRichModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + continent, random=~1|site_code, data=subset(domRichSite, year_trt==6)))
 
 ###plots - note, just using geom_smooth for convinence now, but need to change to actual model estimates later
 #yr3
-domRichTrtPlot3 <- ggplot(data=subset(domRich, year_trt==3), aes(x=cover_lnRR, y=rich_lnRR, colour=NPK)) +
+domRichSitePlot3 <- ggplot(data=subset(domRichSite, year_trt==3), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=continent)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  xlab('lnRR Dominant Species\nRelative Abundance') +
+  ylab('lnRR Richness') +
+  coord_cartesian(ylim=c(-2.5, 1.5)) +
+  annotate('text', x=-6, y=1.5, label='(a) Year 3', size=10, hjust='left') +
+  theme(legend.position='top')
+
+#yr6
+domRichSitePlot6 <- ggplot(data=subset(domRichSite, year_trt==6), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=continent)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  xlab('lnRR Dominant Species\nRelative Abundance') +
+  ylab('') +
+  coord_cartesian(ylim=c(-2.5, 1.5)) +
+  annotate('text', x=-6, y=1.5, label='(b) Year 6', size=10, hjust='left') +
+  theme(legend.position='top')
+
+pushViewport(viewport(layout=grid.layout(1,2)))
+print(domRichSitePlot3, vp=viewport(layout.pos.row=1, layout.pos.col=1))
+print(domRichSitePlot6, vp=viewport(layout.pos.row=1, layout.pos.col=2))
+#export at 1800x700
+
+
+###mixed model - with gamma diversity as covariate
+#yr=3
+summary(domRichGammaModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + site_richness, random=~1|site_code, data=subset(domRichSite, year_trt==3)))
+
+#yr=6
+summary(domRichGammaModel6 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + site_richness, random=~1|site_code, data=subset(domRichSite, year_trt==6)))
+
+###plots - note, just using geom_smooth for convinence now, but need to change to actual model estimates later
+#yr3
+domRichSitePlot3 <- ggplot(data=subset(domRichSite, year_trt==3), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=continent)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  xlab('lnRR Dominant Species\nRelative Abundance') +
+  ylab('lnRR Richness') +
+  coord_cartesian(ylim=c(-2.5, 1.5)) +
+  annotate('text', x=-6, y=1.5, label='(a) Year 3', size=10, hjust='left') +
+  theme(legend.position='top')
+
+#yr6
+domRichSitePlot6 <- ggplot(data=subset(domRichSite, year_trt==6), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=continent)) +
+  geom_point() +
+  geom_smooth(method=lm) +
+  xlab('lnRR Dominant Species\nRelative Abundance') +
+  ylab('') +
+  coord_cartesian(ylim=c(-2.5, 1.5)) +
+  annotate('text', x=-6, y=1.5, label='(b) Year 6', size=10, hjust='left') +
+  theme(legend.position='top')
+
+pushViewport(viewport(layout=grid.layout(1,2)))
+print(domRichSitePlot3, vp=viewport(layout.pos.row=1, layout.pos.col=1))
+print(domRichSitePlot6, vp=viewport(layout.pos.row=1, layout.pos.col=2))
+#export at 1800x700
+
+
+###mixed model - with trt as covariate
+#yr=3
+summary(domRichModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
+
+#yr=6
+summary(domRichModel3 <- lme(rich_temp_lnRR ~ cover_temp_lnRR + NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
+
+###plots - note, just using geom_smooth for convinence now, but need to change to actual model estimates later
+#yr3
+domRichTrtPlot3 <- ggplot(data=subset(domRich, year_trt==3), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=NPK)) +
   geom_point() +
   geom_smooth(method=lm) +
   xlab('lnRR Dominant Species\nRelative Abundance') +
@@ -100,7 +173,7 @@ domRichTrtPlot3 <- ggplot(data=subset(domRich, year_trt==3), aes(x=cover_lnRR, y
   annotate('text', x=-6, y=1.5, label='(a) Year 3', size=10, hjust='left')
 
 #yr6
-domRichTrtPlot6 <- ggplot(data=subset(domRich, year_trt==6), aes(x=cover_lnRR, y=rich_lnRR, colour=NPK)) +
+domRichTrtPlot6 <- ggplot(data=subset(domRich, year_trt==6), aes(x=cover_temp_lnRR, y=rich_temp_lnRR, colour=NPK)) +
   geom_point() +
   geom_smooth(method=lm) +
   xlab('lnRR Dominant Species\nRelative Abundance') +
@@ -113,22 +186,23 @@ print(domRichTrtPlot3, vp=viewport(layout.pos.row=1, layout.pos.col=1))
 print(domRichTrtPlot6, vp=viewport(layout.pos.row=1, layout.pos.col=2))
 #export at 1800x700
 
+
 ###mixed model - just trt effects
 #yr=3, dominance
-summary(richModel3 <- lme(cover_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
+summary(richModel3 <- lme(cover_temp_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
 
 #yr=6, dominance
-summary(richModel6 <- lme(cover_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
+summary(richModel6 <- lme(cover_temp_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
 
 #yr=3, richness
-summary(richModel3 <- lme(rich_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
+summary(richModel3 <- lme(rich_temp_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==3)))
 
 #yr=6, richness
-summary(richModel6 <- lme(rich_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
+summary(richModel6 <- lme(rich_temp_lnRR ~ NPK*Fence, random=~1|site_code, data=subset(domRich, year_trt==6)))
 
 ###plots
 #yr3, dom response
-domTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), variable="cover_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
+domTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), variable="cover_temp_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
   geom_point() +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
   xlab('') +
@@ -137,7 +211,7 @@ domTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), vari
   annotate('text', x=0.1, y=0, label='(a) Year 3', size=10, hjust='left')
 
 #yr6, dom response
-domTrtPlot6 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==6), variable="cover_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
+domTrtPlot6 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==6), variable="cover_temp_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
   geom_point() +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
   xlab('') +
@@ -146,7 +220,7 @@ domTrtPlot6 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==6), vari
   annotate('text', x=0.1, y=0, label='(b) Year 6', size=10, hjust='left')
 
 #yr3, rich response
-richTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), variable="rich_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
+richTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), variable="rich_temp_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
   geom_point() +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
   xlab('') +
@@ -156,7 +230,7 @@ richTrtPlot3 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==3), var
   geom_hline(yintercept=0)
 
 #yr6, rich response
-richTrtPlot6 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==6), variable="rich_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
+richTrtPlot6 <- ggplot(data=barGraphStats(data=subset(domRich, year_trt==6), variable="rich_temp_lnRR", byFactorNames=c("trt")), aes(x=trt, y=mean)) +
   geom_point() +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
   xlab('') +
